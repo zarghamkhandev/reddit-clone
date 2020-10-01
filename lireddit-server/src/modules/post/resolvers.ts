@@ -18,5 +18,14 @@ export const postResolver: Resolvers = {
       await post.save();
       return post;
     },
+    updatePost: async (_, { id, title }) => {
+      const post = await Post.findOneOrFail({ where: { id } });
+      if (!post) {
+        return null;
+      }
+      post.title = title;
+      await post.save();
+      return post;
+    },
   },
 };
