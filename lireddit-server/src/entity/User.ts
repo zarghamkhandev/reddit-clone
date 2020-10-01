@@ -9,7 +9,7 @@ import {
 
 @Entity('users')
 export class User extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id: number;
 
   @CreateDateColumn({ type: 'timestamp' })
