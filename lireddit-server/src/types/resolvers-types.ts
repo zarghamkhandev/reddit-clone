@@ -35,12 +35,18 @@ export type Post = {
 export type Mutation = {
   __typename?: 'Mutation';
   createPost: Post;
+  deletePost: Scalars['Boolean'];
   updatePost?: Maybe<Post>;
 };
 
 
 export type MutationCreatePostArgs = {
   title: Scalars['String'];
+};
+
+
+export type MutationDeletePostArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -134,8 +140,8 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Post: ResolverTypeWrapper<Post>;
   Mutation: ResolverTypeWrapper<{}>;
-  Date: ResolverTypeWrapper<Scalars['Date']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Date: ResolverTypeWrapper<Scalars['Date']>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -145,8 +151,8 @@ export type ResolversParentTypes = ResolversObject<{
   Int: Scalars['Int'];
   Post: Post;
   Mutation: {};
-  Date: Scalars['Date'];
   Boolean: Scalars['Boolean'];
+  Date: Scalars['Date'];
 }>;
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
@@ -165,6 +171,7 @@ export type PostResolvers<ContextType = any, ParentType extends ResolversParentT
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   createPost?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<MutationCreatePostArgs, 'title'>>;
+  deletePost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePostArgs, 'id'>>;
   updatePost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'title' | 'id'>>;
 }>;
 

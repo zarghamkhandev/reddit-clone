@@ -19,13 +19,21 @@ export const postResolver: Resolvers = {
       return post;
     },
     updatePost: async (_, { id, title }) => {
-      const post = await Post.findOneOrFail({ where: { id } });
+      const post = await Post.findOne({ where: { id } });
       if (!post) {
         return null;
       }
       post.title = title;
       await post.save();
       return post;
+    },
+    deletePost: async (_, { id }) => {
+      try {
+        await Post.delete({ id });
+      } catch {
+        return false;
+      }
+      return true;
     },
   },
 };
