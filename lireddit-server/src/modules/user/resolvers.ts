@@ -1,6 +1,7 @@
 import { Resolvers } from '../../types/resolvers-types';
 import argon from 'argon2';
 import { User } from '../../entity/User';
+import { MyContext } from 'src/types/types';
 
 export const userResolver: Resolvers = {
   Mutation: {
@@ -38,7 +39,7 @@ export const userResolver: Resolvers = {
       await user.save();
       return { user };
     },
-    login: async (_, { options }) => {
+    login: async (_, { options }, { req }) => {
       const { username, password } = options;
       const user = await User.findOne({ where: { username } });
 
