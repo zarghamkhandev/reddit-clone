@@ -3,7 +3,7 @@ import { Form, Formik } from 'formik';
 import Wrapper from '../components/Wrapper';
 import InputField from '../components/InputField';
 import { Box, Button } from '@chakra-ui/core';
-import { useRegisterMutation } from '../generated/graphql';
+import { MeDocument, useRegisterMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
 
@@ -11,7 +11,7 @@ interface registerProps {}
 
 const register: React.FunctionComponent<registerProps> = ({}) => {
   const router = useRouter();
-  const [register, { loading, data }] = useRegisterMutation();
+  const [register] = useRegisterMutation();
   return (
     <Wrapper variant="small">
       <Formik
@@ -19,6 +19,7 @@ const register: React.FunctionComponent<registerProps> = ({}) => {
         onSubmit={async (values, { setErrors }) => {
           const response = await register({
             variables: { username: values.username, password: values.password },
+            refetchQueries: [{ query: MeDocument }],
           });
           const errors: any = response.data?.register.errors;
           if (errors) {

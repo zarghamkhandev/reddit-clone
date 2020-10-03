@@ -1,9 +1,25 @@
 import { Resolvers } from '../../types/resolvers-types';
 import argon from 'argon2';
 import { User } from '../../entity/User';
-import { MyContext } from 'src/types/types';
+import { COOKIE_NAME } from '../../constants';
 
 export const userResolver: Resolvers = {
+  Query: {
+    me: async (_, __, { req }) => {
+      if (!req.session.userId) {
+        return null;
+      }
+      const user = await User.findOneOrFail({
+        where: { id: req.session.userId },
+      });
+      return user;
+    },
+    users: async () => {
+      const users = await User.find();
+      console.log(users[0]);
+      return users;
+    },
+  },
   Mutation: {
     register: async (_, { options }) => {
       const { username, password } = options;
@@ -42,7 +58,6 @@ export const userResolver: Resolvers = {
     login: async (_, { options }, { req }) => {
       const { username, password } = options;
       const user = await User.findOne({ where: { username } });
-
       if (!user) {
         const error = [
           {
@@ -51,7 +66,7 @@ export const userResolver: Resolvers = {
           },
         ];
         return {
-          error,
+          errors: error,
         };
       }
       const verify = await argon.verify(user.password, password);
@@ -65,7 +80,23 @@ export const userResolver: Resolvers = {
           ],
         };
       }
+      // save user id into cookie
+      req.session.userId = user.id;
       return { user };
+    },
+    logout: async (_, __, { req, res }) => {
+      return new Promise((response) => {
+        req.session.destroy((err) => {
+          res.clearCookie(COOKIE_NAME);
+          if (err) {
+            console.log(err);
+            response(false);
+            return;
+          } else {
+            response(true);
+          }
+        });
+      });
     },
   },
 };

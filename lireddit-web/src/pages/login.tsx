@@ -3,7 +3,7 @@ import { Form, Formik } from 'formik';
 import Wrapper from '../components/Wrapper';
 import InputField from '../components/InputField';
 import { Box, Button } from '@chakra-ui/core';
-import { useLoginMutation } from '../generated/graphql';
+import { MeDocument, useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
 
@@ -19,6 +19,7 @@ const login: React.FunctionComponent<loginProps> = ({}) => {
         onSubmit={async (values, { setErrors }) => {
           const response = await login({
             variables: { username: values.username, password: values.password },
+            refetchQueries: [{ query: MeDocument }],
           });
           const errors: any = response.data?.login.errors;
           if (errors) {

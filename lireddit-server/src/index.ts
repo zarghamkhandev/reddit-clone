@@ -8,7 +8,8 @@ import cors from 'cors';
 import session from 'express-session';
 import { createClient } from 'redis';
 import connectRedis from 'connect-redis';
-import { MyContext } from './types/types';
+import { COOKIE_NAME } from './constants';
+
 const app = express();
 // create redis connection/ connect to redis server
 const redis = createClient();
@@ -18,7 +19,7 @@ const RedisStore = connectRedis(session);
 app.use(
   session({
     store: new RedisStore({ client: redis, disableTouch: true }),
-    name: 'qid',
+    name: COOKIE_NAME,
     secret: 'my secret',
     saveUninitialized: true,
     resave: false,
@@ -29,22 +30,23 @@ app.use(
     },
   })
 );
-
+app.use(
+  cors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+  })
+);
 //create sever instance and add as a middleware
 const server = new ApolloServer({
   typeDefs: typeDefs,
   resolvers: resolvers,
-  context: ({ req }) => ({
+  context: ({ req, res }) => ({
     req,
+    res,
   }),
 });
-server.applyMiddleware({ app });
-app.use(
-  cors({
-    credentials: true,
-    origin: 'http://localhost:4000',
-  })
-);
+server.applyMiddleware({ app, cors: false });
+
 //start app
 const startApp = async () => {
   try {
