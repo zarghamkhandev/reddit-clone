@@ -1,4 +1,9 @@
-import { FormControl, FormLabel, Input } from '@chakra-ui/core';
+import {
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+} from '@chakra-ui/core';
 import { useField } from 'formik';
 import React from 'react';
 
@@ -10,9 +15,10 @@ interface InputFieldProps {
 }
 
 const InputField: React.FunctionComponent<InputFieldProps> = (props) => {
-  const [field] = useField(props);
+  const [field, { error }] = useField(props);
+
   return (
-    <FormControl>
+    <FormControl isInvalid={!!error}>
       <FormLabel htmlFor={field.name}>{props.label}</FormLabel>
       <Input
         id={field.name}
@@ -20,6 +26,7 @@ const InputField: React.FunctionComponent<InputFieldProps> = (props) => {
         {...field}
         type={props.type}
       />
+      {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>
   );
 };
