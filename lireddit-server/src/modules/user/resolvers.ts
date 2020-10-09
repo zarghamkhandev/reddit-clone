@@ -2,6 +2,7 @@ import { Resolvers } from '../../types/resolvers-types';
 import argon from 'argon2';
 import { User } from '../../entity/User';
 import { COOKIE_NAME } from '../../constants';
+import { validateRegister } from '../../utils/validateRegister';
 
 export const userResolver: Resolvers = {
   Query: {
@@ -22,28 +23,11 @@ export const userResolver: Resolvers = {
   },
   Mutation: {
     register: async (_, { options }) => {
-      const { username, password } = options;
-      if (username.length <= 2) {
-        return {
-          errors: [
-            {
-              field: 'username',
-              message: 'length must be greater than 2',
-            },
-          ],
-        };
+      const { username, password, email } = options;
+      const response = validateRegister(username, email, password);
+      if (response) {
+        return response;
       }
-      if (password.length <= 3) {
-        return {
-          errors: [
-            {
-              field: 'password',
-              message: 'length must be greater than 3',
-            },
-          ],
-        };
-      }
-
       const hashedPassword = await argon.hash(password);
       const findUser = await User.findOne({ where: { username } });
       if (findUser) {
@@ -51,13 +35,16 @@ export const userResolver: Resolvers = {
           errors: [{ message: 'user already exists', field: 'username' }],
         };
       }
-      const user = User.create({ username, password: hashedPassword });
+      const user = User.create({ username, password: hashedPassword, email });
       await user.save();
       return { user };
     },
-    login: async (_, { options }, { req }) => {
-      const { username, password } = options;
-      const user = await User.findOne({ where: { username } });
+    login: async (_, { usernameOrEmail, password }, { req }) => {
+      const user = await User.findOne({
+        where: usernameOrEmail.includes('@')
+          ? { email: usernameOrEmail }
+          : { username: usernameOrEmail },
+      });
       if (!user) {
         const error = [
           {
@@ -97,6 +84,11 @@ export const userResolver: Resolvers = {
           }
         });
       });
+    },
+    forgotPassword: async (_, { email }) => {
+      const user = await User.findOne({ where: { email } });
+      console.log(user);
+      return true;
     },
   },
 };
