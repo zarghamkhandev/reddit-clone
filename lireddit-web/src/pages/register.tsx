@@ -15,10 +15,14 @@ const register: React.FunctionComponent<registerProps> = ({}) => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={{ username: '', email: '', password: '' }}
         onSubmit={async (values, { setErrors }) => {
           const response = await register({
-            variables: { username: values.username, password: values.password },
+            variables: {
+              username: values.username,
+              password: values.password,
+              email: values.email,
+            },
             refetchQueries: [{ query: MeDocument }],
           });
           const errors: any = response.data?.register.errors;
@@ -35,6 +39,14 @@ const register: React.FunctionComponent<registerProps> = ({}) => {
               label="Username"
               placeholder="username here"
             />
+            <Box mt={4}>
+              <InputField
+                name="email"
+                label="Email"
+                placeholder="Email here"
+                type="email"
+              />
+            </Box>
             <Box mt={4}>
               <InputField
                 name="password"

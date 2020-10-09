@@ -15,10 +15,13 @@ const login: React.FunctionComponent<loginProps> = ({}) => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={{ usernameOrEmail: '', password: '' }}
         onSubmit={async (values, { setErrors }) => {
           const response = await login({
-            variables: { username: values.username, password: values.password },
+            variables: {
+              usernameOrEmail: values.usernameOrEmail,
+              password: values.password,
+            },
             refetchQueries: [{ query: MeDocument }],
           });
           const errors: any = response.data?.login.errors;
@@ -31,9 +34,9 @@ const login: React.FunctionComponent<loginProps> = ({}) => {
         {({ isSubmitting }) => (
           <Form>
             <InputField
-              name="username"
-              label="Username"
-              placeholder="username here"
+              name="usernameOrEmail"
+              label="Username or Email"
+              placeholder="username or email here"
             />
             <Box mt={4}>
               <InputField
