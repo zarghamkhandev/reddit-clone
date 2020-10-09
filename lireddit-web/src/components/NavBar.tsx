@@ -6,11 +6,12 @@ import {
   useLogoutMutation,
   useMeQuery,
 } from '../generated/graphql';
+import { isServer } from '../utils/isServer';
 
 interface NavBarProps {}
 
 const NavBar: React.FunctionComponent<NavBarProps> = ({}) => {
-  const { data, loading } = useMeQuery();
+  const { data, loading } = useMeQuery({ skip: isServer() });
   const [logout, { loading: logoutLoading }] = useLogoutMutation();
   let body = null;
   if (loading) {
@@ -18,10 +19,10 @@ const NavBar: React.FunctionComponent<NavBarProps> = ({}) => {
     body = (
       <>
         <NextLink href="/login">
-          <Link>Login</Link>
+          <a>login</a>
         </NextLink>
         <NextLink href="/register">
-          <Link ml={4}>Register</Link>
+          <a>register</a>
         </NextLink>
       </>
     );
