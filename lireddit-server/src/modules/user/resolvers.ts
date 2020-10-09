@@ -17,7 +17,6 @@ export const userResolver: Resolvers = {
     },
     users: async () => {
       const users = await User.find();
-      console.log(users[0]);
       return users;
     },
   },
