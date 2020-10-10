@@ -13,8 +13,12 @@ export const postResolver: Resolvers = {
     },
   },
   Mutation: {
-    createPost: async (_, { title }) => {
-      const post = Post.create({ title });
+    createPost: async (_, { title, text }, { req }) => {
+      if (!req.session.userId) {
+        throw new Error('not authenticated');
+      }
+      console.log(req.session.userId);
+      const post = Post.create({ title, text, creatorId: req.session.userId });
       await post.save();
       return post;
     },

@@ -45,7 +45,13 @@ const NavBar: React.FunctionComponent<NavBarProps> = ({}) => {
     );
   }
   return (
-    <Flex bg="tan" p={4} justify={'flex-end'}>
+    <Flex
+      bg="tan"
+      p={4}
+      justify={'flex-end'}
+      position="sticky"
+      top="0"
+      zIndex={10}>
       {body}
     </Flex>
   );

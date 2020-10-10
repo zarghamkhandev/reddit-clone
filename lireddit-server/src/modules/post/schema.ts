@@ -5,15 +5,19 @@ export const postTypeDefs = gql`
     posts: [Post!]
     post(id: Int!): Post!
   }
+
+  extend type Mutation {
+    createPost(title: String!, text: String!): Post!
+    updatePost(title: String!, id: Int!): Post
+    deletePost(id: Int!): Boolean!
+  }
   type Post {
     id: Int!
     createdAt: Date
     updatedAt: Date
     title: String!
-  }
-  extend type Mutation {
-    createPost(title: String!): Post!
-    updatePost(title: String!, id: Int!): Post
-    deletePost(id: Int!): Boolean!
+    text: String!
+    creatorId: Int!
+    points: Int!
   }
 `;

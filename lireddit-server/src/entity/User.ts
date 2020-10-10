@@ -3,20 +3,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Post } from './Post';
 
 @Entity('users')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: string;
-
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
 
   @Column({ type: 'varchar', length: '255', unique: true })
   username!: string;
@@ -24,4 +20,13 @@ export class User extends BaseEntity {
   email!: string;
   @Column({ type: 'text' })
   password!: string;
+
+  @OneToMany(() => Post, (post) => post.creator)
+  posts: Post[];
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
