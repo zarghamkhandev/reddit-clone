@@ -6,13 +6,13 @@ import typeDefs from './modules/mainSchema';
 import { createConnection } from 'typeorm';
 import cors from 'cors';
 import session from 'express-session';
-import { createClient } from 'redis';
+import Redis from 'ioredis';
 import connectRedis from 'connect-redis';
 import { COOKIE_NAME } from './constants';
 
 const app = express();
 // create redis connection/ connect to redis server
-const redis = createClient();
+const redis = new Redis();
 // initialise redis session
 const RedisStore = connectRedis(session);
 // introduce session
@@ -43,6 +43,7 @@ const server = new ApolloServer({
   context: ({ req, res }) => ({
     req,
     res,
+    redis,
   }),
 });
 server.applyMiddleware({ app, cors: false });

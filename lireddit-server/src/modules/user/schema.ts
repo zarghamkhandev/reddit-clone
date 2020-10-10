@@ -10,6 +10,7 @@ export const userTypeDefs = gql`
     login(usernameOrEmail: String!, password: String!): UserResponse!
     logout: Boolean!
     forgotPassword(email: String!): Boolean!
+    changePassword(token: String!, newPassword: String!): UserResponse!
   }
   input options {
     username: String!
