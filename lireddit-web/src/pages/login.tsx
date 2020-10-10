@@ -2,10 +2,11 @@ import React from 'react';
 import { Form, Formik } from 'formik';
 import Wrapper from '../components/Wrapper';
 import InputField from '../components/InputField';
-import { Box, Button } from '@chakra-ui/core';
+import { Box, Button, PseudoBox } from '@chakra-ui/core';
 import { MeDocument, useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 interface loginProps {}
 
@@ -45,6 +46,20 @@ const login: React.FunctionComponent<loginProps> = ({}) => {
                 placeholder="password here"
                 type="password"
               />
+            </Box>
+            <Box display="flex">
+              <Link href="/forgot-password">
+                <PseudoBox
+                  as="a"
+                  ml="auto"
+                  fontSize="sm"
+                  _hover={{
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                  }}>
+                  Forgot Password ?
+                </PseudoBox>
+              </Link>
             </Box>
             <Button
               type="submit"
