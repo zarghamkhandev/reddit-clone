@@ -9,7 +9,6 @@ import session from 'express-session';
 import Redis from 'ioredis';
 import connectRedis from 'connect-redis';
 import { COOKIE_NAME } from './constants';
-import { Post } from './entity/Post';
 
 const app = express();
 // create redis connection/ connect to redis server
