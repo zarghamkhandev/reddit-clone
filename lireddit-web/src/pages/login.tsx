@@ -24,12 +24,17 @@ const login: React.FunctionComponent<loginProps> = ({}) => {
               password: values.password,
             },
             refetchQueries: [{ query: MeDocument }],
+            awaitRefetchQueries: true,
           });
           const errors: any = response.data?.login.errors;
           if (errors) {
             setErrors(toErrorMap(errors));
           } else if (response.data?.login.user) {
-            router.push('/');
+            if (typeof router.query.next === 'string') {
+              router.push(router.query.next);
+            } else {
+              router.push('/');
+            }
           }
         }}>
         {({ isSubmitting }) => (

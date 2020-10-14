@@ -6,10 +6,12 @@ import InputField from '../components/InputField';
 import Layout from '../components/Layout';
 import Wrapper from '../components/Wrapper';
 import { useCreatePostMutation } from '../generated/graphql';
+import { useIsAuth } from '../utils/useIsAuth';
 
 const CreatePost: React.FunctionComponent<{}> = ({}) => {
   const [createPost] = useCreatePostMutation();
   const router = useRouter();
+  useIsAuth();
   return (
     <Layout>
       <Wrapper variant="small">
