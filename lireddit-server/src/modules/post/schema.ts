@@ -10,6 +10,7 @@ export const postTypeDefs = gql`
     createPost(title: String!, text: String!): Post!
     updatePost(title: String!, id: Int!): Post
     deletePost(id: Int!): Boolean!
+    vote(postId: Int!, value: Int!): Boolean!
   }
 
   type PaginatedPosts {

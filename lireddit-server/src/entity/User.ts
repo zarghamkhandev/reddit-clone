@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Post } from './Post';
+import { Upvote } from './Upvote';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -23,6 +24,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Post, (post: Post) => post.creator)
   posts: Post[];
+
+  @OneToMany(() => Upvote, (upvot: Upvote) => upvot.userId)
+  upvotes: Upvote[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

@@ -1,3 +1,4 @@
+import { Upvote } from '../../entity/Upvote';
 import { getConnection } from 'typeorm';
 import { Post } from '../../entity/Post';
 import { Resolvers } from '../../types/resolvers-types';
@@ -27,6 +28,22 @@ export const postResolver: Resolvers = {
     },
   },
   Mutation: {
+    vote: async (_, { postId, value }, { req }) => {
+      const { userId } = req.session;
+
+      const isupVote = value !== -1;
+      const realValue = isupVote ? 1 : -1;
+
+      await Upvote.insert({ userId, postId, value: realValue });
+      const post = await Post.findOne({ where: { id: postId } });
+      if (post) {
+        post.points = post.points + realValue;
+        await post.save();
+        return true;
+      }
+
+      return false;
+    },
     createPost: async (_, { title, text }, { req }) => {
       if (!req.session.userId) {
         throw new Error('not authenticated');
