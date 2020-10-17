@@ -5,7 +5,7 @@ import React from 'react';
 import InputField from '../components/InputField';
 import Layout from '../components/Layout';
 import Wrapper from '../components/Wrapper';
-import { useCreatePostMutation } from '../generated/graphql';
+import { PostsDocument, useCreatePostMutation } from '../generated/graphql';
 import { useIsAuth } from '../utils/useIsAuth';
 
 const CreatePost: React.FunctionComponent<{}> = ({}) => {
@@ -20,7 +20,11 @@ const CreatePost: React.FunctionComponent<{}> = ({}) => {
           onSubmit={async (values) => {
             await createPost({
               variables: { title: values.title, text: values.text },
+              update: (cache) => {
+                cache.evict({ fieldName: 'posts' });
+              },
             });
+
             router.push('/');
           }}>
           {({ isSubmitting }) => (

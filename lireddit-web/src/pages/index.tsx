@@ -30,6 +30,7 @@ const indexPage = () => {
               {data?.posts?.posts?.map((item) => (
                 <Box p={5} key={item.id} shadow="md" borderWidth="1px">
                   <Heading fontSize="xl">{item.title}</Heading>
+                  <Text>Posted by: {item.creator?.username}</Text>
                   <Text mt={4}>{item.text.slice(0, 50)}</Text>
                 </Box>
               ))}

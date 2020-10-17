@@ -5,6 +5,10 @@ query Posts($limit: Int!, $cursor: Date) {
       createdAt
       title
       text
+      creator {
+        username
+        id
+      }
     }
     hasMore
   }
