@@ -6,16 +6,20 @@ export const postResolver: Resolvers = {
   Query: {
     posts: async (_, { limit, cursor }) => {
       const realLimit = Math.min(50, limit);
+      const realLimitPlusOne = realLimit + 1;
       const qb = getConnection()
         .getRepository(Post)
         .createQueryBuilder('p')
-        .orderBy('"createdAt"', 'DESC')
-        .take(realLimit);
+        .innerJoinAndSelect('p.creator', 'creator')
+        .orderBy('p.createdAt', 'DESC')
+        .take(realLimitPlusOne);
       if (cursor) {
-        qb.where('"createdAt"<:cursor', { cursor });
+        qb.where('p."createdAt" < :cursor', { cursor });
       }
 
-      return qb.getMany();
+      const posts = await qb.getMany();
+      const hasMore = posts.length === realLimitPlusOne;
+      return { posts: posts.slice(0, realLimit), hasMore };
     },
     post: async (_, { id }) => {
       const post = await Post.findOneOrFail({ where: { id } });

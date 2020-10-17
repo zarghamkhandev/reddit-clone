@@ -17,7 +17,7 @@ export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
   post: Post;
-  posts?: Maybe<Array<Post>>;
+  posts: PaginatedPosts;
   users?: Maybe<Array<Maybe<User>>>;
 };
 
@@ -83,6 +83,12 @@ export type MutationUpdatePostArgs = {
   id: Scalars['Int'];
 };
 
+export type PaginatedPosts = {
+  __typename?: 'PaginatedPosts';
+  posts?: Maybe<Array<Post>>;
+  hasMore: Scalars['Boolean'];
+};
+
 export type Post = {
   __typename?: 'Post';
   id: Scalars['Int'];
@@ -92,6 +98,7 @@ export type Post = {
   text: Scalars['String'];
   creatorId: Scalars['Int'];
   points: Scalars['Int'];
+  creator?: Maybe<User>;
 };
 
 
@@ -206,6 +213,7 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  PaginatedPosts: ResolverTypeWrapper<PaginatedPosts>;
   Post: ResolverTypeWrapper<Post>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   UserResponse: ResolverTypeWrapper<UserResponse>;
@@ -222,6 +230,7 @@ export type ResolversParentTypes = ResolversObject<{
   Mutation: {};
   String: Scalars['String'];
   Boolean: Scalars['Boolean'];
+  PaginatedPosts: PaginatedPosts;
   Post: Post;
   Date: Scalars['Date'];
   UserResponse: UserResponse;
@@ -234,7 +243,7 @@ export type ResolversParentTypes = ResolversObject<{
 export type QueryResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   post?: Resolver<ResolversTypes['Post'], ParentType, ContextType, RequireFields<QueryPostArgs, 'id'>>;
-  posts?: Resolver<Maybe<Array<ResolversTypes['Post']>>, ParentType, ContextType, RequireFields<QueryPostsArgs, 'limit'>>;
+  posts?: Resolver<ResolversTypes['PaginatedPosts'], ParentType, ContextType, RequireFields<QueryPostsArgs, 'limit'>>;
   users?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
 }>;
 
@@ -249,6 +258,12 @@ export type MutationResolvers<ContextType = MyContext, ParentType extends Resolv
   updatePost?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'title' | 'id'>>;
 }>;
 
+export type PaginatedPostsResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['PaginatedPosts'] = ResolversParentTypes['PaginatedPosts']> = ResolversObject<{
+  posts?: Resolver<Maybe<Array<ResolversTypes['Post']>>, ParentType, ContextType>;
+  hasMore?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type PostResolvers<ContextType = MyContext, ParentType extends ResolversParentTypes['Post'] = ResolversParentTypes['Post']> = ResolversObject<{
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -257,6 +272,7 @@ export type PostResolvers<ContextType = MyContext, ParentType extends ResolversP
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   creatorId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   points?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  creator?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -288,6 +304,7 @@ export type UserResolvers<ContextType = MyContext, ParentType extends ResolversP
 export type Resolvers<ContextType = MyContext> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  PaginatedPosts?: PaginatedPostsResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   Date?: GraphQLScalarType;
   UserResponse?: UserResponseResolvers<ContextType>;
