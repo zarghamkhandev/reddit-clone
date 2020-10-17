@@ -16,10 +16,16 @@ export type Scalars = {
 
 export type Query = {
   __typename?: 'Query';
-  posts?: Maybe<Array<Post>>;
+  posts: PaginatedPosts;
   post: Post;
   me?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
+};
+
+
+export type QueryPostsArgs = {
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['Date']>;
 };
 
 
@@ -78,6 +84,12 @@ export type MutationChangePasswordArgs = {
   newPassword: Scalars['String'];
 };
 
+export type PaginatedPosts = {
+  __typename?: 'PaginatedPosts';
+  posts?: Maybe<Array<Post>>;
+  hasMore: Scalars['Boolean'];
+};
+
 export type Post = {
   __typename?: 'Post';
   id: Scalars['Int'];
@@ -87,6 +99,7 @@ export type Post = {
   text: Scalars['String'];
   creatorId: Scalars['Int'];
   points: Scalars['Int'];
+  creator: User;
 };
 
 
@@ -232,15 +245,22 @@ export type MeQuery = (
   )> }
 );
 
-export type PostsQueryVariables = Exact<{ [key: string]: never; }>;
+export type PostsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['Date']>;
+}>;
 
 
 export type PostsQuery = (
   { __typename?: 'Query' }
-  & { posts?: Maybe<Array<(
-    { __typename?: 'Post' }
-    & Pick<Post, 'title' | 'id'>
-  )>> }
+  & { posts: (
+    { __typename?: 'PaginatedPosts' }
+    & Pick<PaginatedPosts, 'hasMore'>
+    & { posts?: Maybe<Array<(
+      { __typename?: 'Post' }
+      & Pick<Post, 'id' | 'createdAt' | 'title' | 'text'>
+    )>> }
+  ) }
 );
 
 export const RegularUserFragmentDoc = gql`
@@ -495,10 +515,15 @@ export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const PostsDocument = gql`
-    query Posts {
-  posts {
-    title
-    id
+    query Posts($limit: Int!, $cursor: Date) {
+  posts(limit: $limit, cursor: $cursor) {
+    posts {
+      id
+      createdAt
+      title
+      text
+    }
+    hasMore
   }
 }
     `;
@@ -515,6 +540,8 @@ export const PostsDocument = gql`
  * @example
  * const { data, loading, error } = usePostsQuery({
  *   variables: {
+ *      limit: // value for 'limit'
+ *      cursor: // value for 'cursor'
  *   },
  * });
  */

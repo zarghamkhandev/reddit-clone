@@ -3,13 +3,13 @@ import { AppProps } from 'next/app';
 import { onError } from 'apollo-link-error';
 import {
   ApolloClient,
-  ApolloLink,
   ApolloProvider,
   createHttpLink,
   InMemoryCache,
 } from '@apollo/client';
 import Router from 'next/router';
-
+import { concatPagination } from '@apollo/client/utilities';
+import { PaginatedPosts } from '../generated/graphql';
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
     graphQLErrors.map(({ message }) => {
@@ -25,7 +25,26 @@ const httpLink = createHttpLink({
 });
 
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          posts: {
+            keyArgs: [],
+            merge(
+              existing: PaginatedPosts | undefined,
+              incoming: PaginatedPosts
+            ): PaginatedPosts {
+              return {
+                ...incoming,
+                posts: [...(existing?.posts || []), ...(incoming?.posts || [])],
+              };
+            },
+          },
+        },
+      },
+    },
+  }),
   link: errorLink.concat(httpLink),
 });
 
