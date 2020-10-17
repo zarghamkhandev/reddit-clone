@@ -7,6 +7,14 @@ import sendEmails from '../../utils/sendEmails';
 import { v4 } from 'uuid';
 
 export const userResolver: Resolvers = {
+  User: {
+    email: (user, {}, { req }) => {
+      if (req.session.userId === user.id) {
+        return user.email;
+      }
+      return '';
+    },
+  },
   Query: {
     me: async (_, __, { req }) => {
       if (!req.session.userId) {
