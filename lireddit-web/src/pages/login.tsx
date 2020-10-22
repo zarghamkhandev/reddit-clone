@@ -7,6 +7,7 @@ import { MeDocument, useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { withApollo } from '../utils/withApollo';
 
 interface loginProps {}
 
@@ -22,6 +23,9 @@ const login: React.FunctionComponent<loginProps> = ({}) => {
             variables: {
               usernameOrEmail: values.usernameOrEmail,
               password: values.password,
+            },
+            update: (cache) => {
+              cache.evict({ fieldName: 'posts' });
             },
             refetchQueries: [{ query: MeDocument }],
             awaitRefetchQueries: true,
@@ -80,4 +84,4 @@ const login: React.FunctionComponent<loginProps> = ({}) => {
   );
 };
 
-export default login;
+export default withApollo({ ssr: false })(login);

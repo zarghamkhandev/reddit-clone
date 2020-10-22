@@ -1,18 +1,23 @@
-import { gql } from '@apollo/client';
 import { Box, Button, Heading, IconButton, Stack, Text } from '@chakra-ui/core';
 
 import Link from 'next/link';
 import React from 'react';
 import Layout from '../components/Layout';
 import Wrapper from '../components/Wrapper';
-import { usePostsQuery, useVoteMutation } from '../generated/graphql';
+import {
+  PostDocument,
+  usePostsQuery,
+  useVoteMutation,
+} from '../generated/graphql';
+import { withApollo } from '../utils/withApollo';
 
 const indexPage = () => {
   const { data, loading, fetchMore, variables } = usePostsQuery({
     variables: { limit: 15, cursor: null as null | string },
     notifyOnNetworkStatusChange: true,
   });
-  const [vote] = useVoteMutation();
+
+  const [vote, { data: voteResponse }] = useVoteMutation();
   return (
     <>
       <Layout>
@@ -45,31 +50,17 @@ const indexPage = () => {
                       fontSize="20px"
                       aria-label="upvote up"
                       icon="chevron-up"
+                      variantColor={item.voteStatus === 1 ? 'green' : undefined}
                       onClick={() => {
+                        console.log(voteResponse);
                         vote({
                           variables: { postId: item.id, value: 1 },
-                          update: (cache) => {
-                            const readData = cache.readFragment({
-                              id: `Post:${item.id}`,
-                              fragment: gql`
-                                fragment _ on Post {
-                                  points
-                                }
-                              `,
-                            }) as any;
-
-                            if (readData) {
-                              cache.writeFragment({
-                                id: `Post:${item.id}`,
-                                fragment: gql`
-                                  fragment _ on Post {
-                                    points
-                                  }
-                                `,
-                                data: { points: 1 },
-                              });
-                            }
-                          },
+                          refetchQueries: [
+                            {
+                              query: PostDocument,
+                              variables: { postId: item.id },
+                            },
+                          ],
                         });
                       }}
                     />
@@ -79,33 +70,17 @@ const indexPage = () => {
                       variant="solid"
                       fontSize="20px"
                       aria-label="upvote down"
+                      variantColor={item.voteStatus === -1 ? 'red' : undefined}
                       icon="chevron-down"
                       onClick={() => {
                         vote({
                           variables: { postId: item.id, value: -1 },
-                          update: (cache) => {
-                            const readData = cache.readFragment({
-                              id: `Post:${item.id}`,
-                              fragment: gql`
-                                fragment _ on Post {
-                                  points
-                                }
-                              `,
-                            }) as any;
-
-                            const oldPoints = readData.points;
-                            if (oldPoints) {
-                              cache.writeFragment({
-                                id: `Post:${item.id}`,
-                                fragment: gql`
-                                  fragment _ on Post {
-                                    points
-                                  }
-                                `,
-                                data: { points: -1 },
-                              });
-                            }
-                          },
+                          refetchQueries: [
+                            {
+                              query: PostDocument,
+                              variables: { postId: item.id },
+                            },
+                          ],
                         });
                       }}
                     />
@@ -142,4 +117,4 @@ const indexPage = () => {
   );
 };
 
-export default indexPage;
+export default withApollo({ ssr: true })(indexPage);

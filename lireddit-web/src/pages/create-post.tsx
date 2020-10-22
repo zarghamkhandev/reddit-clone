@@ -7,6 +7,7 @@ import Layout from '../components/Layout';
 import Wrapper from '../components/Wrapper';
 import { useCreatePostMutation } from '../generated/graphql';
 import { useIsAuth } from '../utils/useIsAuth';
+import { withApollo } from '../utils/withApollo';
 
 const CreatePost: React.FunctionComponent<{}> = ({}) => {
   const [createPost] = useCreatePostMutation();
@@ -60,4 +61,4 @@ const CreatePost: React.FunctionComponent<{}> = ({}) => {
   );
 };
 
-export default CreatePost;
+export default withApollo({ ssr: false })(CreatePost);
