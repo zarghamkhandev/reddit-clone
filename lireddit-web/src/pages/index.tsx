@@ -1,6 +1,14 @@
-import { Box, Button, Heading, IconButton, Stack, Text } from '@chakra-ui/core';
+import {
+  Box,
+  Button,
+  Heading,
+  IconButton,
+  Link,
+  Stack,
+  Text,
+} from '@chakra-ui/core';
 
-import Link from 'next/link';
+import NextLink from 'next/link';
 import React from 'react';
 import Layout from '../components/Layout';
 import Wrapper from '../components/Wrapper';
@@ -23,11 +31,10 @@ const indexPage = () => {
       <Layout>
         <Wrapper variant="regular">
           <Box display="flex">
-            <Heading>LiReddit</Heading>
             <Box ml="auto">
-              <Link href="/create-post">
+              <NextLink href="/create-post">
                 <a>Create Post</a>
-              </Link>
+              </NextLink>
             </Box>
           </Box>
           {!data && loading ? (
@@ -86,7 +93,11 @@ const indexPage = () => {
                     />
                   </Box>
                   <Box ml="4">
-                    <Heading fontSize="xl">{item.title}</Heading>
+                    <NextLink href={`/post/${item.id}`}>
+                      <Link>
+                        <Heading fontSize="xl">{item.title}</Heading>
+                      </Link>
+                    </NextLink>
                     <Text>Posted by: {item.creator?.username}</Text>
                     <Text mt={4}>{item.text.slice(0, 50)}</Text>
                   </Box>

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Link } from '@chakra-ui/core';
+import { Box, Button, Flex, Heading } from '@chakra-ui/core';
 import React from 'react';
 import NextLink from 'next/link';
 import {
@@ -52,7 +52,12 @@ const NavBar: React.FunctionComponent<NavBarProps> = ({}) => {
       position="sticky"
       top="0"
       zIndex={10}>
-      {body}
+      <NextLink href="/">
+        <Heading cursor="pointer">LiReddit</Heading>
+      </NextLink>
+      <Box ml={'auto'} display="flex" alignItems="center">
+        {body}
+      </Box>
     </Flex>
   );
 };
