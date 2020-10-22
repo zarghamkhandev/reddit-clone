@@ -10,7 +10,7 @@ export const postTypeDefs = gql`
     createPost(title: String!, text: String!): Post!
     updatePost(title: String!, id: Int!): Post
     deletePost(id: Int!): Boolean!
-    vote(postId: Int!, value: Int!): Boolean!
+    vote(postId: Int!, value: Int!): Upvote
   }
 
   type PaginatedPosts {
@@ -18,6 +18,11 @@ export const postTypeDefs = gql`
     hasMore: Boolean!
   }
 
+  type Upvote {
+    userId: Int!
+    postId: Int!
+    value: Int!
+  }
   type Post {
     id: Int!
     createdAt: Date
@@ -27,5 +32,6 @@ export const postTypeDefs = gql`
     creatorId: Int!
     points: Int!
     creator: User
+    voteStatus: Int
   }
 `;

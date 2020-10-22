@@ -40,11 +40,14 @@ app.use(
 const server = new ApolloServer({
   typeDefs: typeDefs,
   resolvers: resolvers,
-  context: ({ req, res }) => ({
-    req,
-    res,
-    redis,
-  }),
+  context: ({ req, res }) => {
+    console.log(req.headers.cookie);
+    return {
+      req,
+      res,
+      redis,
+    };
+  },
 });
 server.applyMiddleware({ app, cors: false });
 

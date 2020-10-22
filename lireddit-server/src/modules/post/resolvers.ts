@@ -4,6 +4,18 @@ import { Post } from '../../entity/Post';
 import { Resolvers } from '../../types/resolvers-types';
 
 export const postResolver: Resolvers = {
+  Post: {
+    voteStatus: async (post, __, { req }) => {
+      const { userId } = req.session;
+      const postId = post.id;
+      const upvote = await Upvote.findOne({ where: { postId, userId } });
+      if (upvote) {
+        return upvote.value;
+      }
+
+      return null;
+    },
+  },
   Query: {
     posts: async (_, { limit, cursor }) => {
       const realLimit = Math.min(50, limit);
@@ -23,7 +35,10 @@ export const postResolver: Resolvers = {
       return { posts: posts.slice(0, realLimit), hasMore };
     },
     post: async (_, { id }) => {
-      const post = await Post.findOneOrFail({ where: { id } });
+      const post = await Post.findOneOrFail({
+        where: { id },
+        relations: ['creator'],
+      });
       return post;
     },
   },
@@ -33,22 +48,37 @@ export const postResolver: Resolvers = {
 
       const isupVote = value !== -1;
       const realValue = isupVote ? 1 : -1;
+      const upVote = await Upvote.findOne({
+        where: { userId: userId, postId: postId },
+      });
+      const post = await Post.findOneOrFail({ where: { id: postId } });
+      if (upVote && upVote.value !== realValue) {
+        upVote.value = realValue;
+        await upVote.save();
 
-      await Upvote.insert({ userId, postId, value: realValue });
-      const post = await Post.findOne({ where: { id: postId } });
-      if (post) {
         post.points = post.points + realValue;
-        await post.save();
-        return true;
-      }
 
-      return false;
+        await post.save();
+        console.log('hi');
+        return upVote;
+      } else if (upVote && upVote.value === realValue) {
+        return null;
+      }
+      const newUpvote = Upvote.create({
+        userId,
+        postId,
+        value: realValue,
+      });
+      await newUpvote.save();
+      post.points = post.points + realValue;
+      await post.save();
+      return newUpvote;
     },
     createPost: async (_, { title, text }, { req }) => {
       if (!req.session.userId) {
         throw new Error('not authenticated');
       }
-      console.log(req.session.userId);
+
       const post = Post.create({ title, text, creatorId: req.session.userId });
       await post.save();
       return post;
