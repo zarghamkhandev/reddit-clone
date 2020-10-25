@@ -1,22 +1,19 @@
-import { Heading } from '@chakra-ui/core';
-import { useRouter } from 'next/router';
+import { Box, Heading } from '@chakra-ui/core';
 import React from 'react';
 import Layout from '../../components/Layout';
 import Wrapper from '../../components/Wrapper';
 import { usePostQuery } from '../../generated/graphql';
+import { useGetIntId } from '../../utils/useGetIntId';
 import { withApollo } from '../../utils/withApollo';
 
 const Post = ({}) => {
-  const router = useRouter();
-  const id =
-    typeof router.query.id === 'string' ? parseInt(router.query.id) : -1;
-  const { data, loading, error } = usePostQuery({
+  const id = useGetIntId();
+  const { data, loading } = usePostQuery({
     skip: id === -1,
     variables: {
       postId: id,
     },
   });
-
   if (loading) {
     return (
       <Layout>
@@ -37,7 +34,7 @@ const Post = ({}) => {
     <Layout>
       <Wrapper>
         <Heading>{data.post.title}</Heading>
-        <p>{data?.post.text}</p>
+        <Box mt={4}>{data?.post.text}</Box>
       </Wrapper>
     </Layout>
   );

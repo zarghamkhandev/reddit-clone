@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading } from '@chakra-ui/core';
+import { Box, Button, Flex, Heading, Link } from '@chakra-ui/core';
 import React from 'react';
 import NextLink from 'next/link';
 import {
@@ -19,16 +19,21 @@ const NavBar: React.FunctionComponent<NavBarProps> = ({}) => {
     body = (
       <>
         <NextLink href="/login">
-          <a>login</a>
+          <Link mr="2">login</Link>
         </NextLink>
         <NextLink href="/register">
-          <a>register</a>
+          <Link>register</Link>
         </NextLink>
       </>
     );
   } else if (data.me) {
     body = (
       <>
+        <NextLink href="/create-post">
+          <Button variant="solid" mr={'2'}>
+            Create Post
+          </Button>
+        </NextLink>
         <Box>{data.me.username}</Box>
         <Button
           variant="link"

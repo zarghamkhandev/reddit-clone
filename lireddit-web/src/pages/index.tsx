@@ -1,42 +1,38 @@
-import {
-  Box,
-  Button,
-  Heading,
-  IconButton,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/core';
+import { Box, Button, Heading, IconButton, Stack, Text } from '@chakra-ui/core';
+import { onError } from 'apollo-link-error';
+import { route } from 'next/dist/next-server/server/router';
 
 import NextLink from 'next/link';
+import { useRouter } from 'next/router';
 import React from 'react';
 import Layout from '../components/Layout';
 import Wrapper from '../components/Wrapper';
 import {
   PostDocument,
+  useDeletePostMutation,
+  useMeQuery,
   usePostsQuery,
   useVoteMutation,
 } from '../generated/graphql';
 import { withApollo } from '../utils/withApollo';
 
 const indexPage = () => {
+  const { data: meData } = useMeQuery();
+  const router = useRouter();
   const { data, loading, fetchMore, variables } = usePostsQuery({
     variables: { limit: 15, cursor: null as null | string },
     notifyOnNetworkStatusChange: true,
   });
-
+  const [deletePost] = useDeletePostMutation({
+    onError: () => {
+      console.log('this post is not from you');
+    },
+  });
   const [vote, { data: voteResponse }] = useVoteMutation();
   return (
     <>
       <Layout>
         <Wrapper variant="regular">
-          <Box display="flex">
-            <Box ml="auto">
-              <NextLink href="/create-post">
-                <a>Create Post</a>
-              </NextLink>
-            </Box>
-          </Box>
           {!data && loading ? (
             <div>Loading...</div>
           ) : (
@@ -92,14 +88,42 @@ const indexPage = () => {
                       }}
                     />
                   </Box>
-                  <Box ml="4">
-                    <NextLink href={`/post/${item.id}`}>
-                      <Link>
-                        <Heading fontSize="xl">{item.title}</Heading>
-                      </Link>
-                    </NextLink>
-                    <Text>Posted by: {item.creator?.username}</Text>
-                    <Text mt={4}>{item.text.slice(0, 50)}</Text>
+                  <Box ml="4" display="flex" flexGrow={1}>
+                    <Box>
+                      <NextLink href={`/post/[id]`} as={`/post/${item.id}`}>
+                        <Heading fontSize="xl" as="a" cursor="pointer">
+                          {item.title}
+                        </Heading>
+                      </NextLink>
+                      <Text>Posted by: {item.creator?.username}</Text>
+                      <Text mt={4}>{item.text.slice(0, 50)}</Text>
+                    </Box>
+                    {meData?.me?.id !== item.creatorId.toString() ? null : (
+                      <Box ml="auto" display="flex" flexDirection="column">
+                        <IconButton
+                          mb={2}
+                          icon="delete"
+                          aria-label="Delete Post"
+                          isLoading={loading}
+                          onClick={() => {
+                            deletePost({
+                              variables: { id: item.id },
+                              update: (cache) => {
+                                cache.evict({ id: `Post:${item.id}` });
+                              },
+                            });
+                          }}
+                        />
+                        <IconButton
+                          icon="edit"
+                          aria-label="Edit Post"
+                          isLoading={loading}
+                          onClick={() => {
+                            router.push(`/post/edit/${item.id}`);
+                          }}
+                        />
+                      </Box>
+                    )}
                   </Box>
                 </Box>
               ))}
