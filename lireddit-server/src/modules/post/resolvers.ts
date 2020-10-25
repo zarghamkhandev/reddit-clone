@@ -5,15 +5,25 @@ import { Resolvers } from '../../types/resolvers-types';
 
 export const postResolver: Resolvers = {
   Post: {
-    voteStatus: async (post, __, { req }) => {
+    voteStatus: async (post, __, { req, upvoteLoader }) => {
       const { userId } = req.session;
+      if (!userId) {
+        return null;
+      }
       const postId = post.id;
-      const upvote = await Upvote.findOne({ where: { postId, userId } });
-      if (upvote) {
-        return upvote.value;
+      const upvote = await upvoteLoader.load({ postId, userId });
+      if (!upvote) {
+        return null;
       }
 
-      return null;
+      return upvote.value;
+    },
+    creator: async (post, _, { userLoader }) => {
+      const user = userLoader.load(post.creatorId);
+      if (!user) {
+        return null;
+      }
+      return user;
     },
   },
   Query: {
@@ -23,7 +33,6 @@ export const postResolver: Resolvers = {
       const qb = getConnection()
         .getRepository(Post)
         .createQueryBuilder('p')
-        .innerJoinAndSelect('p.creator', 'creator')
         .orderBy('p.createdAt', 'DESC')
         .take(realLimitPlusOne);
       if (cursor) {
@@ -37,7 +46,6 @@ export const postResolver: Resolvers = {
     post: async (_, { id }) => {
       const post = await Post.findOneOrFail({
         where: { id },
-        relations: ['creator'],
       });
       return post;
     },
@@ -59,7 +67,7 @@ export const postResolver: Resolvers = {
         post.points = post.points + realValue;
 
         await post.save();
-        console.log('hi');
+
         return upVote;
       } else if (upVote && upVote.value === realValue) {
         return null;
@@ -83,21 +91,31 @@ export const postResolver: Resolvers = {
       await post.save();
       return post;
     },
-    updatePost: async (_, { id, title }) => {
-      const post = await Post.findOne({ where: { id } });
-      if (!post) {
+    updatePost: async (_, { id, title, text }, { req }) => {
+      if (!req.session.userId) {
         return null;
       }
+      const post = await Post.findOne({
+        where: { id, creatorId: req.session.userId },
+      });
+      if (!post) {
+        throw new Error('not found');
+      }
       post.title = title;
+      post.text = text;
       await post.save();
       return post;
     },
-    deletePost: async (_, { id }) => {
-      try {
-        await Post.delete({ id });
-      } catch {
+    deletePost: async (_, { id }, { req }) => {
+      if (!req.session.userId) {
         return false;
       }
+
+      const response = await Post.delete({ id, creatorId: req.session.userId });
+      if (response.affected === 0) {
+        throw new Error('not found');
+      }
+
       return true;
     },
   },

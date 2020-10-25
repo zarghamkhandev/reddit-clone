@@ -8,7 +8,7 @@ export const postTypeDefs = gql`
 
   extend type Mutation {
     createPost(title: String!, text: String!): Post!
-    updatePost(title: String!, id: Int!): Post
+    updatePost(id: Int!, title: String!, text: String!): Post
     deletePost(id: Int!): Boolean!
     vote(postId: Int!, value: Int!): Upvote
   }

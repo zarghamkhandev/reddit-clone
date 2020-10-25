@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, ManyToMany, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Post } from './Post';
 import { User } from './User';
 
@@ -13,9 +13,9 @@ export class Upvote extends BaseEntity {
   @Column({ type: 'int' })
   value: number;
 
-  @ManyToMany(() => User, (user: User) => user.upvotes)
+  @ManyToOne(() => User, (user: User) => user.upvotes)
   user: User;
 
-  @ManyToMany(() => Post, (post: Post) => post.upvotes)
+  @ManyToOne(() => Post, (post: Post) => post.upvotes, { onDelete: 'CASCADE' })
   post: Post;
 }
