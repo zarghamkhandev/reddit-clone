@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'dotenv-safe/config';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import resolvers from './modules/mainResolvers';
@@ -14,15 +15,19 @@ import { createUpvoteLoader } from './utils/createUpvoteLoader';
 
 const app = express();
 // create redis connection/ connect to redis server
-const redis = new Redis();
+const redis = new Redis(process.env.REDIS_URL);
 // initialise redis session
 const RedisStore = connectRedis(session);
+
+// for engineX
+app.set('trust proxy', 1);
+
 // introduce session
 app.use(
   session({
     store: new RedisStore({ client: redis, disableTouch: true }),
     name: COOKIE_NAME,
-    secret: 'my secret',
+    secret: process.env.SESSION_SECRET,
     saveUninitialized: true,
     resave: false,
     cookie: {
@@ -35,9 +40,10 @@ app.use(
 app.use(
   cors({
     credentials: true,
-    origin: 'http://localhost:3000',
+    origin: 'https://lireddit.zarghamkhan.com',
   })
 );
+
 //create sever instance and add as a middleware
 const server = new ApolloServer({
   typeDefs: typeDefs,
@@ -57,13 +63,25 @@ server.applyMiddleware({ app, cors: false });
 //start app
 const startApp = async () => {
   try {
-    const connection = await createConnection();
+    const connection = await createConnection({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      synchronize: false,
+      logging: true,
+      entities: ['dist/entity/**/*.js'],
+      migrations: ['dist/migration/**/*.js'],
+      subscribers: ['src/subscriber/**/*.ts'],
+      migrationsTableName: 'custom_migration_table',
+      cli: {
+        migrationsDir: 'src/migration',
+      },
+    });
 
     connection.runMigrations();
 
-    app.listen({ port: 4000 }, () =>
+    app.listen({ port: process.env.PORT }, () =>
       console.log(
-        `🚀 Server ready at http://localhost:4000${server.graphqlPath}`
+        `🚀 Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`
       )
     );
   } catch (err) {

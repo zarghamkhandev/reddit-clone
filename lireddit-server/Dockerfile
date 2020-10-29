@@ -6,7 +6,7 @@ COPY package.json ./
 COPY package-lock.json ./
 
 RUN npm ci
-RUN npm run build
+
 
 COPY . .
 
